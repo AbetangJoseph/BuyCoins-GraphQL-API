@@ -7,9 +7,9 @@ async function calculatePrice(args) {
   let transactionRate = 0;
 
   if (type === 'buy' || type === 'sell') {
-    const response = await axios
-      .get('https://api.coindesk.com/v1/bpi/currentprice.json')
-      .catch(error => console.log(error.message));
+    const response = await axios.get(
+      'https://api.coindesk.com/v1/bpi/currentprice.json'
+    );
 
     const { rate_float: usdRate } = response.data.bpi.USD;
 
@@ -23,7 +23,6 @@ async function calculatePrice(args) {
         break;
 
       default:
-        transactionRate = 'invalid type';
         break;
     }
 
