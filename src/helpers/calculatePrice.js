@@ -6,36 +6,40 @@ async function calculatePrice(args) {
   const percentageMargin = margin / 100;
   let transactionRate = 0;
 
-  const response = await axios
-    .get('https://api.coindesk.com/v1/bpi/currentprice.json')
-    .catch(error => console.log(error.message));
+  if (type === 'buy' || type === 'sell') {
+    const response = await axios
+      .get('https://api.coindesk.com/v1/bpi/currentprice.json')
+      .catch(error => console.log(error.message));
 
-  const { rate_float: usdRate } = response.data.bpi.USD;
+    const { rate_float: usdRate } = response.data.bpi.USD;
 
-  switch (type.toLowerCase().trim()) {
-    case 'buy':
-      transactionRate = usdRate + usdRate * percentageMargin;
-      break;
+    switch (type.toLowerCase().trim()) {
+      case 'buy':
+        transactionRate = usdRate + usdRate * percentageMargin;
+        break;
 
-    case 'sell':
-      transactionRate = usdRate - usdRate * percentageMargin;
-      break;
+      case 'sell':
+        transactionRate = usdRate - usdRate * percentageMargin;
+        break;
 
-    default:
-      transactionRate = 'invalid type';
-      break;
+      default:
+        transactionRate = 'invalid type';
+        break;
+    }
+
+    const rate = {
+      id: DB.length + 1,
+      type,
+      rate: (transactionRate * exchangeRate).toFixed(2),
+      date: Date.now()
+    };
+
+    DB.push(rate);
+
+    return rate;
   }
 
-  const result = {
-    id: DB.length + 1,
-    type,
-    result: (transactionRate * args.exchangeRate).toFixed(2),
-    date: Date.now()
-  };
-
-  DB.push(result);
-
-  return result;
+  throw new Error('invalid transaction type');
 }
 
-calculatePrice({ type: 'buy', margin: 0.2, exchangeRate: 360 });
+module.exports = calculatePrice;
